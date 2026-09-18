@@ -1,0 +1,23 @@
+What this mod does
+
+Vinery's PaleStemBlock (the block behind vinery:grapevine_stem) has a built-in mechanic that grows vinery:grapevine_leaves around the stem some time after Red or White Grape Seeds are planted. There is no config option to disable it. This mod removes that one behavior via a NeoForge Mixin, without touching anything else about grape growth, harvesting, or bonemeal.
+
+Compatibility: Vinery 1.5.0 (NeoForge, Minecraft 1.21.1) only. This mod patches exact bytecode locations found in that specific Vinery build. It is not guaranteed to work with any other version, and the version range declared in neoforge.mods.toml will refuse to load the mod outside [1.5.0, 1.6.0) rather than risk a broken patch.
+
+Root cause
+
+PaleStemBlock carries two boolean block-state properties, LEAVES_PENDING and LEAVES_DONE, plus two code paths that can set LEAVES_PENDING = true:
+
+useItemOn(...) — runs the instant a player right-clicks the stem with Grape Seeds. When the stem is freshly planted (AGE == 0) and LEAVES_PENDING / LEAVES_DONE are both false, it flips LEAVES_PENDING to true on the new block state and schedules a block tick 4800–9600 ticks later (Level#scheduleTick). This is the path that fires in normal play, the moment seeds are planted.
+onPlace(...) — runs whenever the block state changes for any reason (e.g. a neighbor update), guarded by the same GRAPE == WHITE/RED and pending/done check. Less relevant in practice, but capable of arming the same timer.
+
+When the scheduled tick eventually fires, tick(...) checks LEAVES_PENDING; if true, it iterates 11 fixed offsets around the stem and places a vinery:grapevine_leaves block at each one with a 40% chance per position, then sets LEAVES_PENDING = false and LEAVES_DONE = true so it only happens once per planting cycle. Harvesting the grapes resets the stem's state, so replanting can trigger the whole cycle again — this matches the "it happens once, then stops until I harvest and replant" behavior observed in testing.
+
+The fix
+
+PaleStemBlockMixin neutralizes both code paths without touching anything else in either method:
+
+onPlace(...): a @Inject cancels the method right before the BlockState#setValue(LEAVES_PENDING, true) call. Everything before that point (including the super.onPlace() call) still runs; only the "arm the leaf timer" branch and the code after it (all of which existed solely to arm the timer) get skipped.
+useItemOn(...): a @Redirect replaces the single BlockState#setValue(...) call in that method with a no-op that returns the state unchanged. Everything else in the method — placing the aged block state, consuming the seed item, playing the plant sound, returning SUCCESS — runs exactly as before. LEAVES_PENDING simply never becomes true, so the later scheduled tick (still scheduled, now harmless) finds it false and does nothing.
+
+Grape growth, aging, harvesting, and bonemeal behavior are all untouched — this mod only ever intercepts the two setValue calls that arm the leaf-growth timer.
