@@ -11,5 +11,3 @@ Vinery may also require Architectury depending on the version you install.
 This mod is a Tweak for the mod **[[Let's Do] Vinery](https://www.curseforge.com/minecraft/mc-mods/lets-do-vinery)**, developed by **Let's Do** (satisfyL). 
 * I do not own any rights to the original assets or the core concept of Vinery.
 * All credits for the original Vinery ecosystem go to the original development team.
-
-
