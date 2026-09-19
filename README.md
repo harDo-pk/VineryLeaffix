@@ -1,3 +1,6 @@
+# VineryLeaffix
+Disables [Let's Do] Vinery's automatic grape-leaf growth around Grapvine Stems. This is a cosmetic feature of Vinery with no vanilla config option to turn it off - this mod removes the behavior via Mixin. Not affiliated with the Let's Do team.
+
 ## Update notice
 
 As of a recent Vinery update, the mod now ships its own config option for this:
@@ -17,9 +20,6 @@ doesn't exist yet in your version, so VineryLeafFix still does its job.
 
 This mod isn't being actively developed further now that the upstream fix exists, but
 it'll stay up for anyone who needs it on 1.5.0 - 1.5.3.
-
-# VineryLeaffix
-Disables [Let's Do] Vinery's automatic grape-leaf growth around Grapvine Stems. This is a cosmetic feature of Vinery with no vanilla config option to turn it off - this mod removes the behavior via Mixin. Not affiliated with the Let's Do team.
 
 ## Requirements
 * Minecraft 1.21.1
